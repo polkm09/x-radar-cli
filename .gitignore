@@ -1,1 +1,14 @@
 .worktrees/
+.DS_Store
+node_modules/
+coverage/
+active_task.json
+cluster_seeds.json
+__pycache__/
+*.pyc
+*.tgz
+*.tmp.json
+tmp-state/
+.env
+.env.*
+AGENTS.md

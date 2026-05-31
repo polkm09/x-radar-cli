@@ -1,0 +1,42 @@
+{
+  "name": "x-radar-cli",
+  "version": "0.1.15",
+  "description": "CLI for locking a fresh low-reply tweet from a private X List",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/polkm09/x-radar-cli.git"
+  },
+  "homepage": "https://github.com/polkm09/x-radar-cli#readme",
+  "bugs": {
+    "url": "https://github.com/polkm09/x-radar-cli/issues"
+  },
+  "type": "module",
+  "bin": {
+    "x-radar": "./bin/x-radar.js",
+    "x-radar-pipeline": "./x_radar_pipeline.py"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md",
+    "x_radar_pipeline.py"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "pick": "node ./bin/x-radar.js pick",
+    "sprout-report": "node ./bin/x-radar.js sprout-report",
+    "quote-post": "node ./bin/x-radar.js quote-post",
+    "pipeline": "python3 ./x_radar_pipeline.py",
+    "pack:local": "npm pack"
+  },
+  "dependencies": {
+    "@jackwener/opencli": "1.8.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
