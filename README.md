@@ -1,58 +1,58 @@
 # Topic Radar
 
-Topic Radar 是一个面向个人自媒体创作者的命令行选题雷达。
+Topic Radar is a command-line topic discovery system for independent media creators.
 
-它从多个内容平台采集选题线索、评论和媒体链接，生成可继续执行的采集计划，并可将结构化结果写入飞书多维表格。项目由两个 CLI 组成：
+It collects topic leads, comments, and media links from multiple content platforms, builds actionable collection plans, and can write structured results to Feishu Base. The project is made up of two CLIs:
 
-- `topic-collector`：负责平台采集、搜索建议词验证、评论和媒体资产处理。
-- `topic-vertical`：负责垂直领域发现、候选聚合、分类统计和采集计划生成。
+- `topic-collector`: platform collection, search-suggestion verification, comment processing, and media handling.
+- `topic-vertical`: vertical-topic discovery, candidate aggregation, classification, and collection-plan generation.
 
-## 功能
+## Features
 
-- 支持小红书、抖音、Bilibili、X、Reddit 和 YouTube。
-- 支持按平台、领域、关键词和采集计划运行。
-- 采集正文、作者、互动数据、评论和可用媒体链接。
-- 将 Bilibili、YouTube 等视频链接交给 Get笔记做进一步分析。
-- 将图片、音频、视频等本地媒体交给 Get笔记处理。
-- 将采集结果、评论、媒体资产和分析结果写入飞书多维表格。
-- 使用 DeepSeek 做领域种子词生成、搜索建议审核和正式采集计划审核。
-- 对平台失败、空结果、评论跳过和不稳定路径保留明确状态。
+- Supports Xiaohongshu, Douyin, Bilibili, X, Reddit, and YouTube.
+- Runs by platform, domain, keyword, or collection plan.
+- Collects post text, authors, engagement data, comments, and available media links.
+- Sends Bilibili and YouTube video links to GetNote for further analysis.
+- Sends local image, audio, and video files to GetNote for processing.
+- Writes collected topics, comments, media assets, and analysis results to Feishu Base.
+- Uses DeepSeek for domain seed generation, search-suggestion review, and formal collection-plan review.
+- Preserves explicit status for platform failures, empty results, skipped comments, and unstable paths.
 
-## 工作方式
+## How It Works
 
-典型流程如下：
+A typical workflow looks like this:
 
 ```text
 topic-vertical discover
         |
         v
-topic-collector suggest  ->  验证搜索建议词
+topic-collector suggest  ->  Verify search suggestions
         |
         v
-topic-collector collect  ->  采集内容、评论和媒体资产
+topic-collector collect  ->  Collect content, comments, and media
         |
         v
-Get笔记                  ->  分析链接或媒体
+GetNote                   ->  Analyze links or media
         |
         v
-飞书多维表格              ->  长期保存结果
+Feishu Base               ->  Store results for long-term use
 ```
 
-`topic-vertical` 负责策略和计划，不直接实现平台抓取；实际平台访问由 `topic-collector` 完成。
+`topic-vertical` handles strategy and planning. `topic-collector` performs the actual platform access and collection.
 
-## 环境要求
+## Requirements
 
-- Node.js 20 或更高版本。
-- 已安装并登录的 [OpenCLI](https://github.com/jackwener/opencli)。
-- 需要使用 Get笔记时，准备已登录的 Get笔记网页端或对应 CLI。
-- 需要写入飞书时，准备已授权的 `lark-cli`。
-- 需要正式审核垂直领域计划时，设置 `DEEPSEEK_API_KEY`。
+- Node.js 20 or later.
+- Installed and authenticated [OpenCLI](https://github.com/jackwener/opencli).
+- An authenticated GetNote web session or the corresponding CLI when GetNote processing is required.
+- An authorized `lark-cli` when writing to Feishu is required.
+- `DEEPSEEK_API_KEY` when formal review of a vertical collection plan is required.
 
-平台采集通常依赖浏览器登录态。项目不会替你登录平台，也不会把平台 Cookie、飞书令牌或 DeepSeek key 写入源码。
+Platform collection usually depends on an existing browser login session. The project does not log in to platforms for you and does not write platform cookies, Feishu tokens, or DeepSeek keys into source code.
 
-## 安装
+## Installation
 
-### 从源码运行
+### Run from source
 
 ```bash
 git clone https://github.com/polkm09/x-radar-cli.git
@@ -60,7 +60,7 @@ cd x-radar-cli
 npm install
 ```
 
-项目当前是源码工作区，常用命令可以直接通过 `node` 运行：
+This repository is currently a source workspace. Run common commands directly with `node`:
 
 ```bash
 node ./src/cli.mjs --help
@@ -68,53 +68,53 @@ node ./src/topic-collector.mjs help
 node ./src/topic-vertical.mjs --version
 ```
 
-### 生成部署包
+### Build deployment packages
 
-项目可以生成两个独立的部署包：
+The project can generate two independent deployment packages:
 
 ```bash
 node ./scripts/prepare-deployment.mjs
 ```
 
-输出包分别为 `topic-collector-<version>.tgz` 和 `topic-vertical-<version>.tgz`。部署和升级步骤见 [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)。
+The output packages are `topic-collector-<version>.tgz` and `topic-vertical-<version>.tgz`. See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for installation and upgrade steps.
 
-## 配置授权
+## Authentication and Configuration
 
 ### DeepSeek
 
-只在需要 DeepSeek 的命令执行前设置环境变量：
+Set the environment variable only when running commands that require DeepSeek:
 
 ```bash
 export DEEPSEEK_API_KEY='your-api-key'
 ```
 
-不要把 key 写入 `.env`、配置文件、脚本、部署包或日志。正式的 `topic-vertical` 采集计划需要 DeepSeek 审核；本地调试可以显式使用规则计划选项。
+Do not put the key in `.env` files, configuration files, scripts, deployment packages, or logs. Formal `topic-vertical` collection plans require DeepSeek review. Local debugging can explicitly use the rule-based plan option.
 
-### 飞书
+### Feishu
 
-先完成 `lark-cli` 的用户授权，并确认用户身份可用：
+First authorize `lark-cli` and confirm that the user identity is available:
 
 ```bash
 lark-cli auth login --domain base,docs,drive --no-wait --json
 lark-cli doctor
 ```
 
-`lark-cli doctor` 显示用户身份 ready 后，初始化项目所需的飞书数据表：
+After `lark-cli doctor` reports that the user identity is ready, initialize the Feishu tables required by the project:
 
 ```bash
 node ./src/cli.mjs init-feishu
 source .topic-radar/feishu.env
 ```
 
-也可以在执行采集时直接传入飞书 Base token：
+You can also provide a Feishu Base token directly when running collection commands:
 
 ```bash
 export TOPIC_RADAR_FEISHU_BASE_TOKEN='your-base-token'
 ```
 
-## 常用命令
+## Common Commands
 
-### 环境检查
+### Check the environment
 
 ```bash
 node ./src/cli.mjs doctor
@@ -122,26 +122,26 @@ node ./src/cli.mjs analyze-sites
 node ./src/cli.mjs feishu-doctor
 ```
 
-### 轻量测试
+### Run a lightweight smoke test
 
-`smoke` 只验证一个领域的小规模采集路径：
+`smoke` checks a small collection path for one domain:
 
 ```bash
 node ./src/cli.mjs smoke --domain AI --limit 3
 ```
 
-### 直接采集
+### Collect directly
 
 ```bash
 node ./src/topic-collector.mjs collect \
   --platforms xiaohongshu,douyin,bilibili,x,reddit,youtube \
-  --domains AI,商业 \
+  --domains AI,Business \
   --limit 8 \
   --comments-limit 20 \
   --base-token "$TOPIC_RADAR_FEISHU_BASE_TOKEN"
 ```
 
-只构建结果、不下载媒体或写入飞书时使用 `--dry-run`：
+Use `--dry-run` when you want to build results without downloading media or writing to Feishu:
 
 ```bash
 node ./src/topic-collector.mjs collect \
@@ -151,17 +151,17 @@ node ./src/topic-collector.mjs collect \
   --download false
 ```
 
-### 验证搜索建议词
+### Verify search suggestions
 
 ```bash
 node ./src/topic-collector.mjs suggest \
   --platforms x,reddit,youtube,bilibili,xiaohongshu,douyin \
   --domain AI \
-  --seeds AI,人工智能,大模型 \
+  --seeds AI,artificial-intelligence,large-language-models \
   --limit 10
 ```
 
-### 发现垂直领域
+### Discover a vertical
 
 ```bash
 node ./src/topic-vertical.mjs discover \
@@ -172,9 +172,9 @@ node ./src/topic-vertical.mjs discover \
   --output vertical-ai.json
 ```
 
-该命令会生成候选结果和 `collector-plan.json`。正式计划必须使用经过验证的搜索词；如果缺少 DeepSeek 审核，结果会保留为等待审核状态，而不是伪装成正式完成。
+This command generates candidate results and `collector-plan.json`. Formal plans must use verified search terms. Without DeepSeek review, the result remains in a pending-review state rather than being presented as complete.
 
-如果平台采集已经完成、只是飞书写入失败，可以从本地快照补写：
+If platform collection has already finished but Feishu writing failed, write the local snapshot again:
 
 ```bash
 node ./src/topic-vertical.mjs persist \
@@ -183,7 +183,7 @@ node ./src/topic-vertical.mjs persist \
   --output vertical-persist.json
 ```
 
-### 按计划采集
+### Collect from a plan
 
 ```bash
 node ./src/topic-collector.mjs collect \
@@ -192,7 +192,7 @@ node ./src/topic-collector.mjs collect \
   --download false
 ```
 
-### Get笔记处理
+### Process with GetNote
 
 ```bash
 node ./src/getnote-processor.mjs process \
@@ -201,37 +201,37 @@ node ./src/getnote-processor.mjs process \
   --max-items 50
 ```
 
-Get笔记是临时分析环节。只有在分析结果成功写入飞书后，项目才会删除对应的临时笔记；删除失败会保留待清理状态。
+GetNote is a temporary analysis step. The project deletes a temporary note only after its analysis result has been written successfully to Feishu. A failed deletion remains marked for cleanup.
 
-## 平台说明
+## Platform Notes
 
-| 平台 | 默认路径 | 说明 |
+| Platform | Default path | Notes |
 | --- | --- | --- |
-| 小红书 | 搜索 -> 详情 -> 下载 | 默认使用保守访问频率 |
-| 抖音 | 公开搜索页 DOM | 视频评论使用真实视频页 DOM |
-| Bilibili | 搜索 -> 视频链接 | 视频链接默认交给 Get笔记，不下载主视频 |
-| X | 搜索 -> 文章或媒体 | 依赖浏览器登录态和 OpenCLI |
-| Reddit | 搜索 -> 热门内容 -> 详情 | 评论和正文状态分别记录 |
-| YouTube | 搜索 -> 视频链接 | 视频链接默认交给 Get笔记，不下载主视频 |
+| Xiaohongshu | Search -> detail -> download | Uses conservative request frequency by default |
+| Douyin | Public search-page DOM | Video comments use the real video-page DOM |
+| Bilibili | Search -> video link | Video links are sent to GetNote by default; the main video is not downloaded |
+| X | Search -> post or media | Requires a browser login session and OpenCLI |
+| Reddit | Search -> popular content -> detail | Comment and post status are recorded separately |
+| YouTube | Search -> video link | Video links are sent to GetNote by default; the main video is not downloaded |
 
-平台路径和字段契约见 [`config/site-paths.json`](config/site-paths.json)；稳定性约束见 [`docs/PLATFORM_STABILITY.md`](docs/PLATFORM_STABILITY.md)。
+Platform paths and field contracts are documented in [`config/site-paths.json`](config/site-paths.json). Stability constraints are documented in [`docs/PLATFORM_STABILITY.md`](docs/PLATFORM_STABILITY.md).
 
-## 数据与运行目录
+## Runtime Data
 
-默认运行目录为 `~/.topic-radar`，包括运行快照、报告、下载文件和临时状态。可以修改：
+The default runtime directory is `~/.topic-radar`. It contains run snapshots, reports, downloads, and temporary state. Change it with:
 
 ```bash
 export TOPIC_RADAR_RUNTIME_DIR='/path/to/.topic-radar'
 ```
 
-以下内容不会提交到 Git：
+The following data is excluded from Git:
 
-- `.env` 和本地 key 文件。
-- 飞书授权信息和运行时 token。
-- 浏览器或平台登录状态。
-- 下载媒体、运行快照和部署 tarball。
+- `.env` files and local key files.
+- Feishu authorization data and runtime tokens.
+- Browser and platform login state.
+- Downloaded media, run snapshots, and deployment tarballs.
 
-## 开发与验证
+## Development and Verification
 
 ```bash
 npm install
@@ -241,17 +241,17 @@ node ./src/topic-vertical.mjs --version
 npm pack --dry-run
 ```
 
-平台相关验证命令和发布流程见 [`docs/RELEASE_PROCESS.md`](docs/RELEASE_PROCESS.md)。
+Platform-specific verification commands and the release process are documented in [`docs/RELEASE_PROCESS.md`](docs/RELEASE_PROCESS.md).
 
-## 项目结构
+## Project Structure
 
 ```text
-src/                    CLI 和核心实现
-src/lib/                采集、规范化、飞书、Get笔记和 DeepSeek 模块
-config/                 平台路径和默认运行配置
-scripts/                部署包生成与辅助验证脚本
-deployment/             部署机安装和验收脚本
-docs/                   架构、部署和稳定性文档
+src/                    CLI and core implementation
+src/lib/                Collection, normalization, Feishu, GetNote, and DeepSeek modules
+config/                 Platform paths and default runtime configuration
+scripts/                Deployment-package generation and verification helpers
+deployment/             Deployment-machine installation and acceptance scripts
+docs/                   Architecture, deployment, and stability documentation
 ```
 
 ## License
