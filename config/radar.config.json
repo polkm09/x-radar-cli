@@ -1,0 +1,29 @@
+{
+  "domains": ["AI", "商业", "个人成长", "技术", "科技", "哲学", "社会", "经济"],
+  "dailyRuns": ["09:00", "21:00"],
+  "timezone": "Asia/Shanghai",
+  "limits": {
+    "perPlatformPerDomain": 8,
+    "hotItems": 10,
+    "detailsPerDomain": 3,
+    "commentsPerItem": 20
+  },
+  "feishu": {
+    "baseName": "自媒体选题雷达",
+    "identity": "user",
+    "tables": {
+      "runs": "采集批次",
+      "rawItems": "原始线索",
+      "mediaAssets": "媒体资产",
+      "getnoteAnalyses": "Get笔记解析",
+      "contentComments": "内容评论",
+      "topicCandidates": "候选选题",
+      "toolTests": "工具实测"
+    }
+  },
+  "paths": {
+    "runtimeDir": ".topic-radar",
+    "downloadsDir": ".topic-radar/downloads",
+    "reportsDir": ".topic-radar/reports"
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "xiaohongshu": {
+    "displayName": "小红书",
+    "primaryCli": "xiaohongshu-radar-cli",
+    "opencliSite": "xiaohongshu",
+    "stablePath": {
+      "strategy": "search_then_detail_then_download",
+      "why": "Search returns ranked notes with title, author, likes, published_at, URL. Note detail and download are available by URL, so the path uses public note pages rather than brittle feed scrolling.",
+      "steps": [
+        "opencli xiaohongshu search <domain> --limit N -f json --site-session persistent",
+        "For top results, opencli xiaohongshu note <url> -f json",
+        "For media URLs, opencli xiaohongshu download <url> --output <downloads>"
+      ],
+      "requiredFields": ["rank", "title", "author", "likes", "published_at", "url"],
+      "fallbacks": [
+        "opencli rednote search <domain> --limit N -f json",
+        "dokobot doko read <result_url> --local"
+      ]
+    }
+  },
+  "douyin": {
+    "displayName": "抖音",
+    "primaryCli": "douyin-radar-cli",
+    "opencliSite": "douyin",
+    "stablePath": {
+      "strategy": "public_search_dom_extract",
+      "why": "The shortest stable topic path is the logged-in public search page. It exposes result cards with item IDs, titles, authors, dates, play counts, durations and covers. The creator-center hashtag API returned intermittent empty/invalid JSON during testing, so it is no longer the default candidate path.",
+      "steps": [
+        "opencli browser douyin-search-<run_id> open https://www.douyin.com/search/<domain>?type=general",
+        "Wait for #search-result-container and extract [id^=waterfall_item_] cards",
+        "Normalize video URL, title, author, published_at, play count, duration and cover"
+      ],
+      "requiredFields": ["id", "title", "author", "published_at", "play", "preview_image_url"],
+      "fallbacks": [
+        "opencli douyin hashtag search --keyword <domain> --limit N -f json --site-session persistent",
+        "opencli douyin hashtag hot --keyword <domain> --limit N -f json --site-session persistent as background only",
+        "dokobot doko read https://www.douyin.com/search/<domain> --local"
+      ],
+      "gap": "Needs longer-run monitoring across domains, but current DOM extraction is more relevant and more stable than the creator hashtag API."
+    }
+  },
+  "bilibili": {
+    "displayName": "Bilibili",
+    "primaryCli": "bilibili-radar-cli",
+    "opencliSite": "bilibili",
+    "stablePath": {
+      "strategy": "search_plus_hot_ranking_plus_video_summary",
+      "why": "Search/hot/ranking/video/subtitle/summary/download are first-class OpenCLI commands and expose IDs, URLs, engagement and media paths with low UI dependency.",
+      "steps": [
+        "opencli bilibili search <domain> --type video --limit N -f json --site-session persistent",
+        "opencli bilibili hot --limit N -f json",
+        "opencli bilibili ranking --limit N -f json",
+        "For top bvids, opencli bilibili video|summary|subtitle <bvid> -f json"
+      ],
+      "requiredFields": ["rank", "title", "author", "score", "url"],
+      "fallbacks": [
+        "yt-dlp --dump-json <video_url>",
+        "dokobot doko read <video_url> --local"
+      ]
+    }
+  },
+  "youtube": {
+    "displayName": "YouTube",
+    "primaryCli": "youtube-radar-cli",
+    "opencliSite": "youtube",
+    "stablePath": {
+      "strategy": "youtube_search_then_getnote_link_direct",
+      "why": "YouTube and Bilibili are handled as link-direct assets for Get笔记. The collector keeps the video URL and comments; it does not download the main video by default.",
+      "steps": [
+        "opencli youtube search <domain> --limit N -f json --site-session persistent",
+        "Normalize video URL, title, channel, published_at, views and summary",
+        "For each selected video, keep the main video URL as getnote_link_direct",
+        "Read top comments when available and keep up to 20 comments"
+      ],
+      "requiredFields": ["title", "channel", "views", "published_at", "url"],
+      "fallbacks": [
+        "yt-dlp --dump-json <video_url> for metadata only",
+        "dokobot doko read <video_url> --local"
+      ]
+    }
+  },
+  "x": {
+    "displayName": "X",
+    "primaryCli": "x-radar-cli",
+    "opencliSite": "twitter",
+    "stablePath": {
+      "strategy": "twitter_search_then_article_or_download",
+      "why": "OpenCLI Twitter adapter includes many API-backed cookie commands. Search is the shortest topic-discovery path; article/download enrich long-form and media posts.",
+      "steps": [
+        "opencli twitter search <domain> --limit N -f json --site-session persistent",
+        "For article tweets, opencli twitter article <tweet_url> -f json",
+        "For media tweets, opencli twitter download --tweet-url <tweet_url> --output <downloads>"
+      ],
+      "requiredFields": ["id", "author", "text", "likes", "retweets", "replies", "views", "created_at", "url"],
+      "fallbacks": [
+        "opencli twitter bookmarks --top-by-engagement N -f json for curated seeds",
+        "dokobot doko read <tweet_url> --local"
+      ]
+    }
+  },
+  "reddit": {
+    "displayName": "Reddit",
+    "primaryCli": "reddit-radar-cli",
+    "opencliSite": "reddit",
+    "stablePath": {
+      "strategy": "search_hot_popular_read",
+      "why": "Search and hot/popular expose score, comments, post id, URL, selftext and media hints; read adds top comments with controlled depth.",
+      "steps": [
+        "opencli reddit search <domain> --sort hot --time week --limit N -f json --site-session persistent",
+        "opencli reddit popular --limit N -f json",
+        "For top post IDs, opencli reddit read <post_id_or_url> --limit 10 --depth 2 -f json"
+      ],
+      "requiredFields": ["title", "subreddit", "score", "comments", "url", "post_hint"],
+      "fallbacks": [
+        "opencli reddit hot --subreddit <known_subreddit> --limit N -f json",
+        "dokobot doko read <post_url> --local"
+      ]
+    }
+  },
+  "biji": {
+    "displayName": "Get笔记网页端",
+    "primaryCli": "biji-note-cli",
+    "opencliSite": "web",
+    "stablePath": {
+      "strategy": "upload_wait_extract_delete",
+      "why": "Get笔记 is a temporary analysis platform. The stable invariant is transaction order: upload asset/link, wait for analysis, extract result, write to Feishu, then delete the original note.",
+      "steps": [
+        "opencli browser biji open https://www.biji.com/note",
+        "Smoke the matching editor panel using the stable entry selectors below",
+        "For links, call the page SSE request with note_type=link; use the GitHub instruction only for GitHub repository URLs",
+        "For image/audio/video files, serve the local file from 127.0.0.1 and fetch it inside the logged-in Get笔记 page, then call Get笔记 frontend upload modules",
+        "Poll getNoteList/getNoteDetail until has_ai_processed=true and content is present",
+        "Write analysis to Feishu Base, then delete through deleteNote(note_id), verify getNoteDetail fails, and update delete_status/deleted_at"
+      ],
+      "apiModules": {
+        "sse": "719.h().sseRequest",
+        "noteApi": "72656.Z.getNoteList/getNoteDetail/deleteNote",
+        "imageUpload": "85112.gf + 85112.V6",
+        "mediaUpload": "98239.Mv",
+        "mediaStreamPath": "/voicenotes/web/notes/stream_on_local_audio"
+      },
+      "avoid": [
+        "Do not rely on OpenCLI element indices; they drift with page state.",
+        "Do not use opencli browser upload against Get笔记 upload divs; the page creates file inputs dynamically.",
+        "Do not wait for full SSE completion inside one opencli eval; create only waits for note_id, then polling handles analysis completion."
+      ],
+      "requiredFields": ["note_id", "note_url", "analysis_text", "insights", "delete_status"],
+      "selectors": {
+        "entry": {
+          "image": ".item.import-image",
+          "link": ".item.import-link",
+          "media": ".item.import-media"
+        },
+        "imagePanel": {
+          "container": ".editor-wrapper.image-link-bg.editor-image",
+          "uploadArea": ".editor-wrapper.editor-image .upload-btn.image-box",
+          "generateButtonText": "生成笔记",
+          "cancelButtonText": "取消",
+          "expectedText": "点此添加 或 拖拽、粘贴图片到这里"
+        },
+        "linkPanel": {
+          "container": ".editor-wrapper.image-link-bg.editor-link",
+          "urlInput": "input[placeholder=\"粘贴或者输入链接\"]",
+          "instructionInput": "input[placeholder=\"输入指令（非必填）\"]",
+          "generateButtonText": "生成笔记",
+          "cancelButtonText": "取消"
+        },
+        "mediaPanel": {
+          "container": ".editor-wrapper.editor-media",
+          "uploadArea": ".editor-wrapper.editor-media .upload-btn.media-box",
+          "generateButtonText": "生成笔记",
+          "cancelButtonText": "取消",
+          "expectedText": "点此导入 或 拖拽、粘贴音视频到这里"
+        },
+        "noteList": {
+          "latestNoteCards": "button[aria-label=\"笔记操作\"]",
+          "openInNewTabButtons": "button[aria-label=\"在新标签页打开\"]"
+        },
+        "deleteFlow": {
+          "noteCard": ".note-list-item",
+          "noteActionButton": "button[aria-label=\"笔记操作\"]",
+          "menuItemRole": "[role=menuitem]",
+          "menuItemText": "删除",
+          "confirmDialog": "[role=dialog]",
+          "confirmDialogTitle": "笔记删除提醒",
+          "confirmButtonText": "确定",
+          "refreshButton": "button[aria-label=\"刷新\"]"
+        }
+      },
+      "githubInstruction": "这个项目是为了解决什么问题而诞生的？为什么这个问题值得被解决？这个项目解决这个问题的独特思路是什么？这个项目的应用场景可以是哪些场景？这个项目的架构是什么样？这个项目的技术亮点是什么？这个项目是否可以商用？",
+      "fallbacks": [
+        "getnote CLI for reading/searching existing notes only",
+        "Manual retry queue if delete fails"
+      ]
+    }
+  }
+}

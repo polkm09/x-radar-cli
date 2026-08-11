@@ -1,0 +1,29 @@
+# Mac mini commands for topic-vertical 0.1.110
+# Run on the Mac mini after copying both split deployment directories.
+
+export TOPIC_RADAR_RUNTIME_DIR="$HOME/Downloads/自媒体运营/.topic-radar"
+npm uninstall -g topic-radar || true
+
+cd "$HOME/Downloads/自媒体运营/数据采集工具/topic-collector-0.1.110"
+shasum -a 256 -c SHA256SUMS.txt
+npm install -g ./topic-collector-0.1.110.tgz
+topic-collector --version
+
+cd "$HOME/Downloads/自媒体运营/垂直领域发现/topic-vertical-0.1.110"
+shasum -a 256 -c SHA256SUMS.txt
+npm install -g ./topic-vertical-0.1.110.tgz
+topic-vertical --version
+
+./VERIFY_SPLIT_PACKAGES_ON_MAC_MINI.sh
+./VERIFY_VERTICAL_COLLECTOR_HANDOFF_ON_MAC_MINI.sh
+./VERIFY_TOPIC_VERTICAL_ON_MAC_MINI.sh
+
+# Full release verification requires:
+#   DEEPSEEK_API_KEY or TOPIC_RADAR_DEEPSEEK_API_KEY_FILE
+#   TOPIC_RADAR_FEISHU_BASE_TOKEN
+# The scripts never need the key written into this command file.
+./VERIFY_TOPIC_VERTICAL_RELEASE_ON_MAC_MINI.sh --preflight-only
+./VERIFY_TOPIC_VERTICAL_RELEASE_ON_MAC_MINI.sh
+
+# If any verifier fails, run:
+./COLLECT_TOPIC_VERTICAL_DIAGNOSTICS_ON_MAC_MINI.sh

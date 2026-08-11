@@ -1,0 +1,21 @@
+# Mac mini commands for topic-collector 0.1.110
+# Run on the Mac mini after copying this directory.
+
+cd "$HOME/Downloads/自媒体运营/数据采集工具/topic-collector-0.1.110"
+export TOPIC_RADAR_RUNTIME_DIR="$HOME/Downloads/自媒体运营/.topic-radar"
+
+shasum -a 256 -c SHA256SUMS.txt
+npm uninstall -g topic-radar || true
+npm install -g ./topic-collector-0.1.110.tgz
+
+topic-collector --version
+topic-collector help
+suggestion-verifier --help
+stability-runner help
+opencli doctor
+
+./VERIFY_SPLIT_PACKAGES_ON_MAC_MINI.sh
+
+# Xiaohongshu is rate-sensitive. Run this once only when the account/browser state is normal.
+# If it exits 3, stop and wait; do not retry in a loop.
+./VERIFY_XIAOHONGSHU_SUGGEST_ON_MAC_MINI.sh

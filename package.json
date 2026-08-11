@@ -1,40 +1,33 @@
 {
-  "name": "x-radar-cli",
-  "version": "0.1.15",
-  "description": "CLI for locking a fresh low-reply tweet from a private X List",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/polkm09/x-radar-cli.git"
-  },
-  "homepage": "https://github.com/polkm09/x-radar-cli#readme",
-  "bugs": {
-    "url": "https://github.com/polkm09/x-radar-cli/issues"
-  },
+  "name": "topic-radar",
+  "version": "0.1.110",
+  "private": true,
   "type": "module",
+  "description": "Personal media-topic radar using OpenCLI, GetNote web, and Feishu Base.",
   "bin": {
-    "x-radar": "./bin/x-radar.js",
-    "x-radar-pipeline": "./x_radar_pipeline.py"
+    "topic-radar": "./src/cli.mjs",
+    "xiaohongshu-radar-cli": "./src/site-cli.mjs",
+    "douyin-radar-cli": "./src/site-cli.mjs",
+    "bilibili-radar-cli": "./src/site-cli.mjs",
+    "x-radar-cli": "./src/site-cli.mjs",
+    "reddit-radar-cli": "./src/site-cli.mjs",
+    "youtube-radar-cli": "./src/site-cli.mjs",
+    "douyin-comments-cli": "./src/douyin-comments-cli.mjs",
+    "douyin-dom-verifier": "./src/douyin-dom-verifier.mjs",
+    "suggestion-verifier": "./src/suggestion-verifier.mjs",
+    "stability-runner": "./src/stability-runner.mjs",
+    "topic-collector": "./src/topic-collector.mjs",
+    "topic-vertical": "./src/topic-vertical.mjs",
+    "getnote-processor": "./src/getnote-processor.mjs",
+    "biji-note-cli": "./src/biji-note-cli.mjs",
+    "radar-media-download": "./src/media-download.mjs"
   },
-  "files": [
-    "bin/",
-    "src/",
-    "README.md",
-    "x_radar_pipeline.py"
-  ],
   "scripts": {
-    "test": "vitest run",
-    "pick": "node ./bin/x-radar.js pick",
-    "sprout-report": "node ./bin/x-radar.js sprout-report",
-    "quote-post": "node ./bin/x-radar.js quote-post",
-    "pipeline": "python3 ./x_radar_pipeline.py",
-    "pack:local": "npm pack"
-  },
-  "dependencies": {
-    "@jackwener/opencli": "1.8.0"
-  },
-  "devDependencies": {
-    "vitest": "^3.2.4"
+    "doctor": "node ./src/cli.mjs doctor",
+    "analyze-sites": "node ./src/cli.mjs analyze-sites",
+    "smoke": "node ./src/cli.mjs smoke --domain AI --limit 3",
+    "run": "node ./src/cli.mjs run",
+    "feishu:doctor": "node ./src/cli.mjs feishu-doctor"
   },
   "engines": {
     "node": ">=20"
